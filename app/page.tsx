@@ -46,10 +46,22 @@ export default function Home() {
 
   const fetchPhotos = async () => {
     try {
-      const res = await fetch("/api/photos");
+      const res = await fetch("/api/photos", { cache: "no-store" });
+
+      if (!res.ok) {
+        throw new Error(`Error: ${res.status}`);
+      }
+
       const data = await res.json();
-      setPhotos(data);
+
+      if (Array.isArray(data)) {
+        setPhotos(data);
+      } else {
+        setPhotos([]);
+        console.error("API returned non-array:", data);
+      }
     } catch (error) {
+      console.error("Fetch error:", error);
       messageApi.error("Failed to load feed");
     } finally {
       setLoading(false);
